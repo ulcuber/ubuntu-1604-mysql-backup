@@ -35,6 +35,7 @@ sudo dpkg -i percona-release_latest.$(lsb_release -sc)_all.deb
 sudo percona-release enable-only tools release
 sudo apt-get update
 sudo apt-get install percona-xtrabackup-24 qpress -y
+rm percona-release_latest.$(lsb_release -sc)_all.deb
 
 sudo mysql -e "CREATE USER '${mysql_backup_user}'@'localhost' IDENTIFIED BY '${MYSQL_BACKUP_PASSWORD}';"
 echo "Created mysql user \"${mysql_backup_user}\""
