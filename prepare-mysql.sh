@@ -26,7 +26,7 @@ sanity_check () {
     fi
 
     # Check whether a single full backup directory are available
-    if (( ${#full_dirs[@]} != 1 )); then
+    if (( ${#full_dirs[@]} == 0 )); then
         error "Exactly one full backup directory is required."
     fi
 }
@@ -35,12 +35,12 @@ do_backup () {
     # Apply the logs to each of the backups
     printf "Initial prep of full backup %s\n" "${full_backup_dir}"
     xtrabackup --prepare --apply-log-only --target-dir="${full_backup_dir}"
-    
+
     for increment in "${incremental_dirs[@]}"; do
         printf "Applying incremental backup %s to %s\n" "${increment}" "${full_backup_dir}"
         xtrabackup --prepare --apply-log-only --incremental-dir="${increment}" --target-dir="${full_backup_dir}"
     done
-    
+
     printf "Applying final logs to full backup %s\n" "${full_backup_dir}"
     xtrabackup --prepare --target-dir="${full_backup_dir}"
 }
@@ -60,17 +60,17 @@ to verify before continuing.
 If everything looks correct, you can apply the restored files.
 
 First, stop MySQL and move or remove the contents of the MySQL data directory:
-    
+
         sudo systemctl stop mysql
         sudo mv /var/lib/mysql/ /tmp/
-    
+
 Then, recreate the data directory and  copy the backup files:
-    
+
         sudo mkdir /var/lib/mysql
         sudo xtrabackup --copy-back --target-dir=${PWD}/$(basename "${full_backup_dir}")
-    
+
 Afterward the files are copied, adjust the permissions and restart the service:
-    
+
         sudo chown -R mysql:mysql /var/lib/mysql
         sudo find /var/lib/mysql -type d -exec chmod 750 {} \\;
         sudo systemctl start mysql

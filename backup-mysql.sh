@@ -4,7 +4,7 @@ export LC_ALL=C
 
 days_of_backups=3  # Must be less than 7
 backup_owner="backup"
-parent_dir="/backups/mysql"
+parent_dir="/var/backups/mysql"
 defaults_file="/etc/mysql/backup.cnf"
 todays_dir="${parent_dir}/$(date +%a)"
 log_file="${todays_dir}/backup-progress.log"
@@ -25,7 +25,7 @@ sanity_check () {
     if [ "$(id --user --name)" != "$backup_owner" ]; then
         error "Script can only be run as the \"$backup_owner\" user"
     fi
-    
+
     # Check whether the encryption key file is available
     if [ ! -r "${encryption_key_file}" ]; then
         error "Cannot read encryption key at ${encryption_key_file}"
@@ -47,7 +47,7 @@ set_options () {
         "--encrypt-threads=${processors}"
         "--slave-info"
     )
-    
+
     backup_type="full"
 
     # Add option to read LSN (log sequence number) if a full backup has been
@@ -73,7 +73,7 @@ take_backup () {
     mkdir -p "${todays_dir}"
     find "${todays_dir}" -type f -name "*.incomplete" -delete
     xtrabackup "${xtrabackup_args[@]}" --target-dir="${todays_dir}" > "${todays_dir}/${backup_type}-${now}.xbstream.incomplete" 2> "${log_file}"
-    
+
     mv "${todays_dir}/${backup_type}-${now}.xbstream.incomplete" "${todays_dir}/${backup_type}-${now}.xbstream"
 }
 
