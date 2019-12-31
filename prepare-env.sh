@@ -63,6 +63,7 @@ echo ""
 
 sudo mkdir -p ${parent_dir}
 sudo chown backup:mysql ${parent_dir}
+sudo touch ${encryption_key_file}
 sudo chown ${USER}: ${encryption_key_file}
 printf '%s' "$(openssl rand -base64 24)" > ${encryption_key_file}
 sudo chown backup: ${encryption_key_file}
